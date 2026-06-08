@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png">
+  <title>Frontend Mentor | Newsletter sign-up form with success message</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── RESET ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── DESIGN TOKENS (from style-guide.md) ───────────────── */
+    :root {
+      --red:        hsl(4, 100%, 67%);
+      --red-pale:   hsl(4, 100%, 96%);
+      --red-border: hsl(4, 100%, 75%);
+
+      --blue-800:   hsl(234, 29%, 20%);
+      --blue-700:   hsl(235, 18%, 26%);
+      --grey:       hsl(0, 0%, 58%);
+      --white:      hsl(0, 0%, 100%);
+
+      --font:       'Roboto', sans-serif;
+      --text-base:  16px;
+    }
+
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+      font-family: var(--font);
+      font-size: var(--text-base);
+      background: var(--blue-800);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SIGN-UP CARD
+    ══════════════════════════════════════════════════════════ */
+    .signup {
+      background: var(--white);
+      border-radius: 2.25rem;
+      display: grid;
+      /* content left, illustration right */
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 0;
+      max-width: 928px;
+      width: calc(100% - 3rem);
+      padding: 1.5rem;
+      gap: 2rem;
+      box-shadow: 0 24px 64px rgba(0,0,0,.35);
+    }
+
+    /* ── Left: copy + form ─────────────────────────────────── */
+    .signup__body {
+      padding: 3rem 1rem 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .signup__title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .signup__intro {
+      color: var(--blue-700);
+      line-height: 1.6;
+    }
+
+    /* benefit list */
+    .signup__list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .625rem;
+    }
+
+    .signup__list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      color: var(--blue-700);
+      line-height: 1.5;
+    }
+
+    /* orange check circle */
+    .signup__list li::before {
+      content: '';
+      flex-shrink: 0;
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-top: .1rem;
+      border-radius: 50%;
+      background: var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='9' viewBox='0 0 12 9'%3E%3Cpath d='M1 4.5L4 7.5L11 1' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/60% no-repeat;
+    }
+
+    /* form */
+    .signup__form { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .field { display: flex; flex-direction: column; gap: .5rem; }
+
+    .field__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .field__label {
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      letter-spacing: .03em;
+    }
+
+    .field__error {
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--red);
+      display: none;
+    }
+
+    .field.error .field__error { display: block; }
+
+    .field__input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 1.5px solid hsl(0, 0%, 80%);
+      border-radius: .75rem;
+      font-family: var(--font);
+      font-size: 1rem;
+      color: var(--blue-800);
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+
+    .field__input::placeholder { color: var(--grey); }
+
+    .field__input:focus {
+      border-color: var(--blue-800);
+    }
+
+    /* error state */
+    .field.error .field__input {
+      border-color: var(--red);
+      background: var(--red-pale);
+      color: var(--red);
+    }
+
+    /* subscribe button */
+    .btn-subscribe {
+      width: 100%;
+      padding: 1.0625rem;
+      border: none;
+      border-radius: .75rem;
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      background: var(--blue-800);
+      cursor: pointer;
+      transition: background .25s, box-shadow .25s, transform .15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-subscribe:hover {
+      background: var(--red);
+      box-shadow: 0 18px 36px hsla(4, 100%, 67%, .45);
+      transform: translateY(-1px);
+    }
+
+    .btn-subscribe:active { transform: translateY(0); }
+
+    /* ── Right: illustration ───────────────────────────────── */
+    .signup__image {
+      width: 400px;
+      flex-shrink: 0;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      align-self: stretch;
+      background: linear-gradient(
+        150deg,
+        hsl(20, 100%, 94%) 0%,
+        hsl(346, 100%, 90%) 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .signup__image svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SUCCESS CARD
+    ══════════════════════════════════════════════════════════ */
+    .success {
+      background: var(--white);
+      border-radius: 2.25rem;
+      max-width: 504px;
+      width: calc(100% - 3rem);
+      padding: 4rem 4rem 4rem;
+      display: none;                  /* shown via JS */
+      flex-direction: column;
+      gap: 1.5rem;
+      box-shadow: 0 24px 64px rgba(0,0,0,.35);
+      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+      min-height: 520px;
+      justify-content: center;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.92) translateY(20px); }
+      to   { opacity: 1; transform: scale(1)  translateY(0); }
+    }
+
+    .success__icon {
+      width: 4rem;
+      height: 4rem;
+    }
+
+    .success__title {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 700;
+      color: var(--blue-800);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .success__body {
+      color: var(--blue-700);
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+
+    .success__body strong {
+      font-weight: 700;
+      color: var(--blue-800);
+    }
+
+    .btn-dismiss {
+      width: 100%;
+      padding: 1.0625rem;
+      border: none;
+      border-radius: .75rem;
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      background: var(--blue-800);
+      cursor: pointer;
+      margin-top: auto;
+      transition: background .25s, box-shadow .25s, transform .15s;
+    }
+
+    .btn-dismiss:hover {
+      background: var(--red);
+      box-shadow: 0 18px 36px hsla(4, 100%, 67%, .45);
+      transform: translateY(-1px);
+    }
+
+    .btn-dismiss:active { transform: translateY(0); }
+
+    /* ── ATTRIBUTION ───────────────────────────────────────── */
+    .attribution {
+      font-size: 11px;
+      text-align: center;
+      color: hsl(0,0%,70%);
+      margin-top: 1rem;
+    }
+
+    .attribution a { color: hsl(228, 45%, 44%); }
+
+    /* ══════════════════════════════════════════════════════════
+       RESPONSIVE — MOBILE  (≤ 768px)
+    ══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      body {
+        background: var(--white);
+        justify-content: flex-start;
+        padding: 0;
+      }
+
+      .signup {
+        grid-template-columns: 1fr;
+        border-radius: 0 0 2rem 2rem;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        gap: 0;
+        box-shadow: none;
+      }
+
+      /* illustration on top on mobile */
+      .signup__image {
+        width: 100%;
+        height: 284px;
+        border-radius: 0 0 1.5rem 1.5rem;
+        order: -1;
+      }
+
+      .signup__body {
+        padding: 2.5rem 1.5rem 3rem;
+      }
+
+      .signup__title { font-size: 2.5rem; }
+
+      /* success full height on mobile */
+      .success {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+        min-height: 100vh;
+        padding: 9rem 1.5rem 2.5rem;
+        box-shadow: none;
+      }
+
+      .attribution { padding-bottom: .75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════
+       SIGN-UP CARD
+  ════════════════════════════════════════════════════════ -->
+  <div class="signup" id="signupCard">
+
+    <!-- Left panel -->
+    <div class="signup__body">
+
+      <h1 class="signup__title">Stay<br>updated!</h1>
+
+      <p class="signup__intro">
+        Join 60,000+ product managers receiving monthly updates on:
+      </p>
+
+      <ul class="signup__list">
+        <li>Product discovery and building what matters</li>
+        <li>Measuring to ensure updates are a success</li>
+        <li>And much more!</li>
+      </ul>
+
+      <form class="signup__form" id="signupForm" novalidate>
+
+        <div class="field" id="emailField">
+          <div class="field__header">
+            <label class="field__label" for="emailInput">Email address</label>
+            <span class="field__error" id="emailError" role="alert"></span>
+          </div>
+          <input
+            class="field__input"
+            type="email"
+            id="emailInput"
+            name="email"
+            placeholder="email@company.com"
+            autocomplete="email"
+            aria-describedby="emailError"
+          >
+        </div>
+
+        <button type="submit" class="btn-subscribe">
+          Subscribe to monthly newsletter
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Right panel: illustration -->
+    <div class="signup__image" aria-hidden="true">
+      <!--
+        Inline SVG illustration mimicking the Frontend Mentor
+        newsletter card design (phone with email notification,
+        gradient background, floating list items).
+      -->
+      <svg viewBox="0 0 400 580" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- soft radial background blob -->
+        <ellipse cx="200" cy="290" rx="180" ry="260"
+                 fill="hsl(20,100%,96%)" opacity=".6"/>
+
+        <!-- ── phone frame ───────────────────────────────── -->
+        <rect x="110" y="80" width="180" height="340" rx="24"
+              fill="hsl(234,29%,20%)"/>
+        <!-- screen -->
+        <rect x="118" y="95" width="164" height="310" rx="16"
+              fill="hsl(235,18%,26%)"/>
+        <!-- notch -->
+        <rect x="168" y="88" width="64" height="10" rx="5"
+              fill="hsl(234,29%,20%)"/>
+
+        <!-- ── email card on screen ──────────────────────── -->
+        <rect x="130" y="140" width="140" height="100" rx="12"
+              fill="white" opacity=".97"/>
+        <!-- envelope icon -->
+        <rect x="148" y="156" width="40" height="28" rx="5"
+              fill="hsl(4,100%,67%)" opacity=".15"/>
+        <path d="M148 161 L168 172 L188 161"
+              fill="none" stroke="hsl(4,100%,67%)" stroke-width="2"
+              stroke-linejoin="round"/>
+        <rect x="148" y="156" width="40" height="28" rx="5"
+              fill="none" stroke="hsl(4,100%,67%)" stroke-width="1.5"/>
+        <!-- email text lines -->
+        <rect x="148" y="196" width="80" height="7" rx="3.5"
+              fill="hsl(234,29%,20%)"/>
+        <rect x="148" y="210" width="56" height="6" rx="3"
+              fill="hsl(0,0%,80%)"/>
+        <rect x="148" y="223" width="68" height="6" rx="3"
+              fill="hsl(0,0%,80%)"/>
+
+        <!-- ── notification badge ────────────────────────── -->
+        <circle cx="270" cy="128" r="18"
+                fill="hsl(4,100%,67%)"/>
+        <text x="270" y="134"
+              text-anchor="middle"
+              font-family="Roboto, sans-serif"
+              font-weight="700"
+              font-size="14"
+              fill="white">1</text>
+        <!-- connecting line -->
+        <line x1="256" y1="128" x2="244" y2="148"
+              stroke="hsl(4,100%,67%)" stroke-width="1.5"
+              stroke-dasharray="4 3" opacity=".5"/>
+
+        <!-- ── floating benefit pills ────────────────────── -->
+        <!-- pill 1 -->
+        <rect x="56" y="250" width="148" height="36" rx="18"
+              fill="white"
+              filter="url(#shadow)"/>
+        <!-- check dot -->
+        <circle cx="78" cy="268" r="10"
+                fill="hsl(4,100%,67%)"/>
+        <path d="M73 268 L76.5 271.5 L83 265"
+              fill="none" stroke="white" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="96" y="262" width="96" height="7" rx="3.5"
+              fill="hsl(235,18%,26%)"/>
+        <rect x="96" y="272" width="68" height="5" rx="2.5"
+              fill="hsl(0,0%,80%)"/>
+
+        <!-- pill 2 -->
+        <rect x="198" y="300" width="148" height="36" rx="18"
+              fill="white"
+              filter="url(#shadow)"/>
+        <circle cx="220" cy="318" r="10"
+                fill="hsl(4,100%,67%)"/>
+        <path d="M215 318 L218.5 321.5 L225 315"
+              fill="none" stroke="white" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="238" y="312" width="90" height="7" rx="3.5"
+              fill="hsl(235,18%,26%)"/>
+        <rect x="238" y="322" width="64" height="5" rx="2.5"
+              fill="hsl(0,0%,80%)"/>
+
+        <!-- pill 3 -->
+        <rect x="68" y="348" width="148" height="36" rx="18"
+              fill="white"
+              filter="url(#shadow)"/>
+        <circle cx="90" cy="366" r="10"
+                fill="hsl(4,100%,67%)"/>
+        <path d="M85 366 L88.5 369.5 L95 363"
+              fill="none" stroke="white" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="108" y="360" width="80" height="7" rx="3.5"
+              fill="hsl(235,18%,26%)"/>
+        <rect x="108" y="370" width="56" height="5" rx="2.5"
+              fill="hsl(0,0%,80%)"/>
+
+        <!-- ── decorative sparkles ────────────────────────── -->
+        <!-- top right -->
+        <g stroke="hsl(4,100%,67%)" stroke-width="2"
+           stroke-linecap="round" opacity=".6">
+          <line x1="340" y1="90"  x2="340" y2="102"/>
+          <line x1="334" y1="96"  x2="346" y2="96"/>
+        </g>
+        <circle cx="352" cy="115" r="4" fill="hsl(20,100%,67%)" opacity=".7"/>
+        <!-- bottom left -->
+        <g stroke="hsl(20,100%,67%)" stroke-width="2"
+           stroke-linecap="round" opacity=".5">
+          <line x1="68" y1="440" x2="68"  y2="452"/>
+          <line x1="62" y1="446" x2="74"  y2="446"/>
+        </g>
+        <circle cx="86"  cy="430" r="5" fill="hsl(4,100%,67%)" opacity=".5"/>
+        <circle cx="316" cy="420" r="6" fill="hsl(4,100%,67%)" opacity=".35"/>
+
+        <!-- ── subscribe button at bottom of phone ─────────── -->
+        <rect x="132" y="360" width="136" height="32" rx="10"
+              fill="hsl(4,100%,67%)"/>
+        <rect x="155" y="372" width="90" height="8" rx="4"
+              fill="white" opacity=".9"/>
+
+        <!-- drop shadow filter -->
+        <defs>
+          <filter id="shadow" x="-10%" y="-10%" width="120%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6"
+                          flood-color="rgba(0,0,0,.12)"/>
+          </filter>
+        </defs>
+
+      </svg>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SUCCESS CARD
+  ════════════════════════════════════════════════════════ -->
+  <div class="success" id="successCard" role="alert" aria-live="polite">
+
+    <!-- gradient check icon -->
+    <svg class="success__icon" viewBox="0 0 64 64"
+         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="checkGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stop-color="hsl(20,100%,67%)"/>
+          <stop offset="100%" stop-color="hsl(4,100%,67%)"/>
+        </linearGradient>
+      </defs>
+      <circle cx="32" cy="32" r="32" fill="url(#checkGrad)"/>
+      <path d="M18 32 L27 41 L46 22"
+            stroke="white" stroke-width="4" fill="none"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <h2 class="success__title">Thanks for<br>subscribing!</h2>
+
+    <p class="success__body">
+      A confirmation email has been sent to
+      <strong id="confirmedEmail">ash@loremcompany.com</strong>.
+      Please open it and click the button inside to confirm your subscription.
+    </p>
+
+    <button class="btn-dismiss" id="dismissBtn">
+      Dismiss message
+    </button>
+
+  </div>
+
+  <p class="attribution">
+    Challenge by
+    <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">
+      Frontend Mentor
+    </a>.
+    Coded by <a href="#">Your Name Here</a>.
+  </p>
+
+  <!-- ════════════════════════════════════════════════════════
+       JAVASCRIPT
+  ════════════════════════════════════════════════════════ -->
+  <script>
+    const signupCard    = document.getElementById('signupCard');
+    const successCard   = document.getElementById('successCard');
+    const form          = document.getElementById('signupForm');
+    const emailInput    = document.getElementById('emailInput');
+    const emailField    = document.getElementById('emailField');
+    const emailError    = document.getElementById('emailError');
+    const confirmedEl   = document.getElementById('confirmedEmail');
+    const dismissBtn    = document.getElementById('dismissBtn');
+
+    // Email regex — standard format check
+    function isValidEmail(v) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+    }
+
+    function showError(msg) {
+      emailField.classList.add('error');
+      emailError.textContent = msg;
+      emailInput.setAttribute('aria-invalid', 'true');
+    }
+
+    function clearError() {
+      emailField.classList.remove('error');
+      emailError.textContent = '';
+      emailInput.removeAttribute('aria-invalid');
+    }
+
+    // Remove error as user types
+    emailInput.addEventListener('input', clearError);
+
+    // Form submit
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = emailInput.value.trim();
+
+      if (val === '') {
+        showError('Valid email required');
+        emailInput.focus();
+        return;
+      }
+
+      if (!isValidEmail(val)) {
+        showError('Valid email required');
+        emailInput.focus();
+        return;
+      }
+
+      // ── show success ──
+      confirmedEl.textContent = val;
+      signupCard.style.display  = 'none';
+      successCard.style.display = 'flex';
+    });
+
+    // Dismiss → reset to form
+    dismissBtn.addEventListener('click', () => {
+      successCard.style.display = 'none';
+      signupCard.style.display  = 'grid';
+      emailInput.value = '';
+      clearError();
+    });
+  </script>
+
+</body>
+</html>
